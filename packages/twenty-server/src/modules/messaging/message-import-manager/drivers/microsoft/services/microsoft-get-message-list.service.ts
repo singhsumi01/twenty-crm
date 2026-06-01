@@ -117,27 +117,31 @@ export class MicrosoftGetMessageListService {
           this.microsoftMessageListFetchErrorHandler.handleError(error),
         );
 
-    return Promise.all(
-      batchResponse.responses.map((response) => {
-        const folder = folderByRequestId.get(response.id);
+    const results: GetOneMessageListResponse[] = [];
 
-        if (!isDefined(folder)) {
-          throw new Error(
-            `Microsoft batch response references unknown request id ${response.id}`,
-          );
-        }
+    for (const response of batchResponse.responses) {
+      const folder = folderByRequestId.get(response.id);
 
-        if (response.status !== 200) {
-          this.microsoftMessageListFetchErrorHandler.handleError({
-            statusCode: response.status,
-            message: response.body?.error?.message,
-            code: response.body?.error?.code,
-          });
-        }
+      if (!isDefined(folder)) {
+        throw new Error(
+          `Microsoft batch response references unknown request id ${response.id}`,
+        );
+      }
 
-        return this.iterateFolderPages(microsoftClient, folder, response.body);
-      }),
-    );
+      if (response.status !== 200) {
+        this.microsoftMessageListFetchErrorHandler.handleError({
+          statusCode: response.status,
+          message: response.body?.error?.message,
+          code: response.body?.error?.code,
+        });
+      }
+
+      results.push(
+        await this.iterateFolderPages(microsoftClient, folder, response.body),
+      );
+    }
+
+    return results;
   }
 
   private buildInitialDeltaUrl(folder: FolderToProcess): string {
