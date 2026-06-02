@@ -5,10 +5,10 @@ import { useLingui } from '@lingui/react';
 import { styled } from '@linaria/react';
 
 import {
-  DEPLOYMENT_EXPERTISES,
+  PARTNER_SCOPES,
   SERVED_GEOS,
   SPOKEN_LANGUAGES,
-  type DeploymentExpertise,
+  type PartnerScope,
   type ServedGeo,
   type SpokenLanguage,
 } from '@/lib/partners-api';
@@ -16,7 +16,7 @@ import { theme } from '@/theme';
 
 import type { FilterCriteria } from '../filter-partners';
 import {
-  DEPLOYMENT_EXPERTISE_LABELS,
+  PARTNER_SCOPE_LABELS,
   SERVED_GEO_LABELS,
   SPOKEN_LANGUAGE_LABELS,
 } from './chip-labels';
@@ -31,7 +31,7 @@ type FilterBarProps = {
   hasAnyFilter: boolean;
   onToggleRegion: (geo: ServedGeo) => void;
   onToggleLanguage: (lang: SpokenLanguage) => void;
-  onToggleDeployment: (dep: DeploymentExpertise) => void;
+  onToggleCategory: (scope: PartnerScope) => void;
   onClearAll: () => void;
 };
 
@@ -71,7 +71,7 @@ export function FilterBar({
   hasAnyFilter,
   onToggleRegion,
   onToggleLanguage,
-  onToggleDeployment,
+  onToggleCategory,
   onClearAll,
 }: FilterBarProps) {
   const { i18n } = useLingui();
@@ -87,10 +87,10 @@ export function FilterBar({
       text: i18n._(SPOKEN_LANGUAGE_LABELS[lang]),
       onRemove: () => onToggleLanguage(lang),
     })),
-    ...[...criteria.deployments].map((dep) => ({
-      key: `deployment:${dep}`,
-      text: i18n._(DEPLOYMENT_EXPERTISE_LABELS[dep]),
-      onRemove: () => onToggleDeployment(dep),
+    ...[...criteria.categories].map((scope) => ({
+      key: `category:${scope}`,
+      text: i18n._(PARTNER_SCOPE_LABELS[scope]),
+      onRemove: () => onToggleCategory(scope),
     })),
   ];
 
@@ -112,11 +112,11 @@ export function FilterBar({
           onToggle={onToggleLanguage}
         />
         <FilterDropdown
-          label={msg`Deploys`}
-          options={DEPLOYMENT_EXPERTISES}
-          optionLabels={DEPLOYMENT_EXPERTISE_LABELS}
-          selected={criteria.deployments}
-          onToggle={onToggleDeployment}
+          label={msg`Categories`}
+          options={PARTNER_SCOPES}
+          optionLabels={PARTNER_SCOPE_LABELS}
+          selected={criteria.categories}
+          onToggle={onToggleCategory}
         />
       </DropdownRow>
       {hasAnyFilter && <ActiveFilterPills pills={pills} />}
